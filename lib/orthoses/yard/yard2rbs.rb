@@ -22,12 +22,6 @@ module Orthoses
       # @return [RBS::Types::Bases::Bool]
       attr_reader :bool
 
-      # @return [RBS::Types::Bases::Nil]
-      attr_reader :nil_type
-
-      # @return [RBS::Types::Bases::Self]
-      attr_reader :self_type
-
       def initialize(yardoc:, block:)
         @yardoc = yardoc
         @block = block
@@ -36,14 +30,12 @@ module Orthoses
         @untyped = ::RBS::Types::Bases::Any.new(location: nil)
         @void = ::RBS::Types::Bases::Void.new(location: nil)
         @bool = ::RBS::Types::Bases::Bool.new(location: nil)
-        @nil_type = ::RBS::Types::Bases::Nil.new(location: nil)
-        @self_type = ::RBS::Types::Bases::Self.new(location: nil)
       end
 
       # @return [void]
       def run
         Orthoses.logger.info("YARD will generate about #{yardoc.inspect}")
-        block.call(yardoc.path, nil)
+        block.call(yardoc.path, yardoc.docstring, nil)
         yardoc.children.each do |child|
           case child.type
           when :module, :class
@@ -62,15 +54,15 @@ module Orthoses
             if class_attributes[:read] && class_attributes[:write]
               visibility = class_attributes[:read].visibility == :private ? 'private ' : ''
               type = tag_types_to_rbs_type(class_attributes[:read].tags('return').flat_map(&:types))
-              block.call(yardoc.path, "#{visibility}attr_accessor #{prefix}#{name}: #{type}")
+              block.call(yardoc.path, class_attributes[:read].docstring, "#{visibility}attr_accessor #{prefix}#{name}: #{type}")
             elsif class_attributes[:read]
               visibility = class_attributes[:read].visibility == :private ? 'private ' : ''
               type = tag_types_to_rbs_type(class_attributes[:read].tags('return').flat_map(&:types))
-              block.call(yardoc.path, "#{visibility}attr_reader #{prefix}#{name}: #{type}")
+              block.call(yardoc.path, class_attributes[:read].docstring, "#{visibility}attr_reader #{prefix}#{name}: #{type}")
             elsif class_attributes[:write]
               visibility = class_attributes[:write].visibility == :private ? 'private ' : ''
               type = tag_types_to_rbs_type(class_attributes[:write].tags('return').flat_map(&:types))
-              block.call(yardoc.path, "#{visibility}attr_writer #{prefix}#{name}: #{type}")
+              block.call(yardoc.path, class_attributes[:write].docstring, "#{visibility}attr_writer #{prefix}#{name}: #{type}")
             else
               raise "bug"
             end
@@ -177,7 +169,7 @@ module Orthoses
           )
 
           visibility = meth.visibility == :private ? 'private ' : ''
-          block.call(yardoc.to_s, "#{visibility}def #{prefix}#{method_name}: #{method_type}")
+          block.call(yardoc.to_s, meth.docstring, "#{visibility}def #{prefix}#{method_name}: #{method_type}")
         end
       end
 

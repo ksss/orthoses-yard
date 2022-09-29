@@ -19,12 +19,13 @@ module Orthoses
         ::YARD::Registry.root.children.each do |yardoc|
           case yardoc.type
           when :class, :module
-            YARD2RBS.run(yardoc: yardoc) do |namespace, rbs|
+            YARD2RBS.run(yardoc: yardoc) do |namespace, docstring, rbs|
               if rbs.nil?
                 store[namespace]
               else
                 Orthoses.logger.debug("#{namespace} << #{rbs}")
-                store[namespace] << rbs
+                all = docstring.all.then { |it| it.empty? ? "" : "#{it.gsub(/^/, '# ')}\n" }
+                store[namespace] << "#{all}#{rbs}"
               end
             end
           end
