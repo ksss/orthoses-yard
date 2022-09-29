@@ -1,0 +1,10 @@
+# frozen_string_literal: true
+
+source "https://rubygems.org"
+
+gem "yard", path: "src"
+gem "orthoses-yard", path: "../../"
+gem "rake"
+gem "rack"
+gem "sord"
+gem "debug"

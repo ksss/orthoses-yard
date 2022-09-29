@@ -1,0 +1,19 @@
+# GENERATED FILE
+
+class Orthoses::YARD::YARD2RBS
+  attr_reader yardoc: untyped
+  attr_reader block: Proc
+  attr_reader untyped: RBS::Types::Bases::Any
+  attr_reader void: RBS::Types::Bases::Void
+  attr_reader bool: RBS::Types::Bases::Bool
+  attr_reader nil_type: RBS::Types::Bases::Nil
+  attr_reader self_type: RBS::Types::Bases::Self
+  def initialize: (yardoc: untyped, block: untyped) -> void
+  def run: () -> void
+  def generate_for_attributes: () -> void
+  def generate_for_methods: () -> void
+  def tag_types_to_rbs_type: (untyped tag_types) -> untyped
+  def wrap: (untyped types) -> untyped
+  def recursive_resolve: (untyped types_explainer_types) -> untyped
+  def temporary_type_params: (untyped name) -> Array[RBS::Types::Bases::Any]
+end
