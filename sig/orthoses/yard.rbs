@@ -2,4 +2,5 @@
 
 class Orthoses::YARD
   def initialize: (untyped loader, globs: untyped) -> void
+  VERSION: untyped
 end
