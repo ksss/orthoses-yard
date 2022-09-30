@@ -21,6 +21,16 @@ module YARDTest
     actual = store["YARDTest"].to_rbs
     expect = <<~RBS
       module YARDTest
+        # @param [Boolean] a
+        # @param [String, nil] b
+        # @param [Array<Float>] c
+        # @param [String] d
+        # @param [Symbol, nil] e
+        # @param [Hash{Symbol => String, nil}] f
+        # @yieldparam [String] key
+        # @yieldparam [String] value
+        # @yieldreturn [Boolean]
+        # @return [void]
         def foo: (bool a, ?String? b, *Array[Float] c, d: String, ?e: Symbol?, **Hash[Symbol, String?] f) -> void
       end
     RBS
