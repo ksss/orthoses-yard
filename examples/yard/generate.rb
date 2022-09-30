@@ -26,9 +26,9 @@ Orthoses::Builder.new do
     # TODO: support generics
     store['YARD::Tags::Library'] << 'def self.labels: () -> SymbolHash'
   end
-  use Orthoses::Constant
   use Orthoses::YARD,
     globs: [
+      'src/lib/yard.rb',
       'src/lib/yard/**/*.rb'
     ]
   use Orthoses::Autoload
