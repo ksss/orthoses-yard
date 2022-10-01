@@ -20,10 +20,15 @@ from
 
 ```rb
 class Foo
-  # @param [Integer] a
-  # @param [Symbol, nil] b
-  # @return [String, Array<String>]
-  def bar(a, b = nil)
+  # @param [Boolean] a
+  # @param [String, nil] b
+  # @param [Array<Float>] c
+  # @param [String] d
+  # @param [Symbol, nil] e
+  # @param [Hash{Symbol => String, nil}] f
+  # @return [void]
+  def foo(a, b = nil, *c, d:, e: nil, **f)
+    1
   end
 end
 ```
@@ -32,7 +37,14 @@ to
 
 ```rbs
 class Foo
-  def bar: (Integer a, ?Symbol? b) -> String | Array[String]
+  # @param [Boolean] a
+  # @param [String, nil] b
+  # @param [Array<Float>] c
+  # @param [String] d
+  # @param [Symbol, nil] e
+  # @param [Hash{Symbol => String, nil}] f
+  # @return [void]
+  def foo: (bool a, ?String? b, *Array[Float] c, d: String, ?e: Symbol?, **Hash[Symbol, String?] f) -> void
 end
 ```
 
