@@ -1,6 +1,9 @@
 require 'yard'
 
 module YARD2RBSTest
+  ::YARD::Registry.clear
+  ::YARD.parse(__FILE__)
+
   def class_instance(name, args = [])
     ::RBS::Types::ClassInstance.new(name: name, args: [], location: nil)
   end
@@ -39,31 +42,31 @@ module YARD2RBSTest
     end
   end
 
-  # @yieldparam [String] a
-  # @yieldreturn [String]
-  def foo
-  end
+  module Methods
+    # @yieldparam [String] a
+    # @yieldreturn [String]
+    def foo
+    end
 
-  # @param [String] a
-  # @return [void]
-  def bar(a)
-  end
+    # @param [String] a
+    # @return [void]
+    def bar(a)
+    end
 
-  # @param [String] a
-  # @yieldparam [String]
-  # @yieldreturn [String]
-  # @return [void]
-  def baz(a)
-  end
+    # @param [String] a
+    # @yieldparam [String]
+    # @yieldreturn [String]
+    # @return [void]
+    def baz(a)
+    end
 
-  # @yieldreturn [String]
-  def qux
+    # @yieldreturn [String]
+    def qux
+    end
   end
 
   def test_method(t)
-    ::YARD::Registry.clear
-    ::YARD.parse(__FILE__)
-    yardoc = ::YARD::Registry.at('YARD2RBSTest')
+    yardoc = ::YARD::Registry.at('YARD2RBSTest::Methods')
     res = []
     Orthoses::YARD::YARD2RBS.run(yardoc: yardoc) do |namespace, docstring, rbs|
       res << [namespace, docstring, rbs] if rbs
@@ -89,6 +92,46 @@ module YARD2RBSTest
 
     expect = "def qux: () { () -> String } -> untyped"
     actual = res[3].last
+    unless expect == actual
+      t.error("expect `#{expect}`, but got `#{actual}`")
+    end
+  end
+
+  module Attributes
+    # @return [Integer]
+    attr_accessor :a
+    class << self
+      # @return [Integer]
+      attr_reader :r
+
+      private
+
+      # @return [Integer]
+      attr_writer :w
+    end
+  end
+
+  def test_attribute(t)
+    yardoc = ::YARD::Registry.at('YARD2RBSTest::Attributes')
+    res = []
+    Orthoses::YARD::YARD2RBS.run(yardoc: yardoc) do |namespace, docstring, rbs|
+      res << [namespace, docstring, rbs] if rbs
+    end
+
+    expect = "attr_reader self.r: Integer"
+    actual = res[0].last
+    unless expect == actual
+      t.error("expect `#{expect}`, but got `#{actual}`")
+    end
+
+    expect = "private attr_writer self.w: Integer"
+    actual = res[1].last
+    unless expect == actual
+      t.error("expect `#{expect}`, but got `#{actual}`")
+    end
+
+    expect = "attr_accessor a: Integer"
+    actual = res[2].last
     unless expect == actual
       t.error("expect `#{expect}`, but got `#{actual}`")
     end
