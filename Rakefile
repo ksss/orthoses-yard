@@ -26,7 +26,7 @@ task :sig do
       name.start_with?('Orthoses::YARD')
     end
     use Orthoses::YARD,
-      globs: 'lib/orthoses/**/*.rb'
+      parse: 'lib/orthoses/**/*.rb'
     run -> {}
   end.call
 end

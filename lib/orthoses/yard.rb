@@ -4,18 +4,18 @@ require_relative "yard/version"
 require_relative "yard/yard2rbs"
 
 module Orthoses
-  # use Orthoses::YARD, globs: "lib/**/*.rb"
+  # use Orthoses::YARD, parse: "lib/**/*.rb"
   class YARD
-    def initialize(loader, globs:)
+    def initialize(loader, parse:)
       @loader = loader
-      @globs = Array(globs)
+      @parse = Array(parse)
     end
 
     def call
       @loader.call.tap do |store|
         require 'yard'
 
-        ::YARD.parse(@globs)
+        ::YARD.parse(@parse)
         ::YARD::Registry.root.children.each do |yardoc|
           case yardoc.type
           when :class, :module

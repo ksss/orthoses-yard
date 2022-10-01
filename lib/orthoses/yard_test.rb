@@ -13,7 +13,7 @@ module YARDTest
   def test_yard(t)
     store = Orthoses::YARD.new(
       ->{ Orthoses::Utils.new_store },
-      globs: ["lib/orthoses/yard_test.rb"]
+      parse: ["lib/orthoses/yard_test.rb"]
     ).call
     actual = store["YARDTest"].to_rbs
     expect = <<~RBS

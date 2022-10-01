@@ -27,7 +27,7 @@ Orthoses::Builder.new do
     store['YARD::Tags::Library'] << 'def self.labels: () -> SymbolHash'
   end
   use Orthoses::YARD,
-    globs: [
+    parse: [
       'src/lib/yard.rb',
       'src/lib/yard/**/*.rb'
     ]
