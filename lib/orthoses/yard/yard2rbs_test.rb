@@ -38,4 +38,59 @@ module YARD2RBSTest
       end
     end
   end
+
+  # @yieldparam [String] a
+  # @yieldreturn [String]
+  def foo
+  end
+
+  # @param [String] a
+  # @return [void]
+  def bar(a)
+  end
+
+  # @param [String] a
+  # @yieldparam [String]
+  # @yieldreturn [String]
+  # @return [void]
+  def baz(a)
+  end
+
+  # @yieldreturn [String]
+  def qux
+  end
+
+  def test_method(t)
+    ::YARD::Registry.clear
+    ::YARD.parse(__FILE__)
+    yardoc = ::YARD::Registry.at('YARD2RBSTest')
+    res = []
+    Orthoses::YARD::YARD2RBS.run(yardoc: yardoc) do |namespace, docstring, rbs|
+      res << [namespace, docstring, rbs] if rbs
+    end
+
+    expect = "def foo: () { (String a) -> String } -> untyped"
+    actual = res[0].last
+    unless expect == actual
+      t.error("expect `#{expect}`, but got `#{actual}`")
+    end
+
+    expect = "def bar: (String a) -> void"
+    actual = res[1].last
+    unless expect == actual
+      t.error("expect `#{expect}`, but got `#{actual}`")
+    end
+
+    expect = "def baz: (String a) { (String) -> String } -> void"
+    actual = res[2].last
+    unless expect == actual
+      t.error("expect `#{expect}`, but got `#{actual}`")
+    end
+
+    expect = "def qux: () { () -> String } -> untyped"
+    actual = res[3].last
+    unless expect == actual
+      t.error("expect `#{expect}`, but got `#{actual}`")
+    end
+  end
 end

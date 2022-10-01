@@ -5,9 +5,6 @@ module YARDTest
   # @param [String] d
   # @param [Symbol, nil] e
   # @param [Hash{Symbol => String, nil}] f
-  # @yieldparam [String] key
-  # @yieldparam [String] value
-  # @yieldreturn [Boolean]
   # @return [void]
   def foo(a, b = nil, *c, d:, e: nil, **f)
     1
@@ -27,9 +24,6 @@ module YARDTest
         # @param [String] d
         # @param [Symbol, nil] e
         # @param [Hash{Symbol => String, nil}] f
-        # @yieldparam [String] key
-        # @yieldparam [String] value
-        # @yieldreturn [Boolean]
         # @return [void]
         def foo: (bool a, ?String? b, *Array[Float] c, d: String, ?e: Symbol?, **Hash[Symbol, String?] f) -> void
       end

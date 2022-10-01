@@ -108,10 +108,10 @@ module Orthoses
           required_keywords = {}
           optional_keywords = {}
           rest_keywords = nil
+          yield_params = []
+          yield_return = nil
 
           requireds = required_positionals
-
-          # block = nil
 
           # @type var method_object: (Method | UnboundMethod)
           method_object.parameters.each do |kind, name|
@@ -136,11 +136,9 @@ module Orthoses
             when :keyrest
               rest_keywords = ::RBS::Types::Function::Param.new(name: name, type: type)
             when :block
-              # block = ::RBS::Types::Block.new(
-              #   type: ::RBS::Types::Function.empty(untyped).update(rest_positionals: ::RBS::Types::Function::Param.new(name: nil, type: type)),
-              #   required: true,
-              #   self_type: nil
-              # )
+              # block parameters cannot get by method object
+            else
+              raise "bug"
             end
           end
 
@@ -162,11 +160,37 @@ module Orthoses
             return_type: return_type,
           )
 
+          yield_type =
+            if !meth.tags("yieldparam").empty? || !meth.tags("yieldreturn").empty?
+              block_required_positionals = meth.tags("yieldparam").map do |tag|
+                ::RBS::Types::Function::Param.new(
+                  name: tag.name,
+                  type: tag_types_to_rbs_type(tag.types) || untyped
+                )
+              end
+              block_return_type = tag_types_to_rbs_type(meth.tags("yieldreturn").flat_map(&:types)) || untyped
+              ::RBS::Types::Block.new(
+                required: true,
+                type: ::RBS::Types::Function.new(
+                  required_positionals: block_required_positionals,
+                  optional_positionals: [],
+                  rest_positionals: nil,
+                  trailing_positionals: [],
+                  required_keywords: {},
+                  optional_keywords: {},
+                  rest_keywords: nil,
+                  return_type: block_return_type,
+                ),
+              )
+            else
+              nil
+            end
+
           method_type = ::RBS::MethodType.new(
             location: nil,
             type_params: [],
             type: function,
-            block: nil
+            block: yield_type
           )
 
           visibility = meth.visibility == :private ? 'private ' : ''
