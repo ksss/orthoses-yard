@@ -25,6 +25,9 @@ Orthoses::Builder.new do
     store['YARD::Handlers::Ruby'].header = 'module YARD::Handlers::Ruby'
     # TODO: support generics
     store['YARD::Tags::Library'] << 'def self.labels: () -> SymbolHash'
+
+    # FIXME: YARD's issue?
+    store['YARD::CLI::YardocOptions'].delete("# @return [Numeric] An index value for rendering sequentially related templates\nattr_accessor index: Numeric")
   end
   use Orthoses::YARD,
     parse: [
@@ -41,7 +44,8 @@ Orthoses::Builder.new do
   }
 end.call
 
-Pathname("out").join("EXTERNAL_TODO.rbs").write(<<~RBS)
+out = Pathname("out")
+out.join("EXTERNAL_TODO.rbs").write(<<RBS)
   # !!! GENERATED CODE !!!
   class OpenStruct
   end
@@ -69,3 +73,66 @@ Pathname("out").join("EXTERNAL_TODO.rbs").write(<<~RBS)
     end
   end
 RBS
+
+out.join("manifest.yaml").write(<<~YAML)
+dependencies:
+  - name: rubygems
+  - name: set
+  - name: optparse
+  - name: logger
+  - name: monitor
+YAML
+
+out.join('_scripts').tap(&:mkpath).join("test").write(<<~SHELL)
+#!/usr/bin/env bash
+
+# Exit command with non-zero status code, Output logs of every command executed, Treat unset variables as an error when substituting.
+set -eou pipefail
+# Internal Field Separator - Linux shell variable
+IFS=$'
+	'
+# Print shell input lines
+set -v
+
+# Set RBS_DIR variable to change directory to execute type checks using `steep check`
+RBS_DIR=$(cd $(dirname $0)/..; pwd)
+# Set REPO_DIR variable to validate RBS files added to the corresponding folder
+REPO_DIR=$(cd $(dirname $0)/../../..; pwd)
+# Validate RBS files, using the bundler environment present
+bundle exec rbs --repo $REPO_DIR -r yard:0.9 -r rubygems -r set -r optparse -r logger -r monitor -r rack:2.2.2 validate --silent
+
+cd ${RBS_DIR}/_test
+# Run type checks
+bundle exec steep check
+SHELL
+
+out.join('_test').tap(&:mkpath).join("yard.rb").write(<<~RUBY)
+require 'yard'
+
+YARD::Registry.root.children.each do |child|
+  child.name(false)
+  child.docstring.all
+end
+RUBY
+
+out.join('_test').join('Steepfile').write(<<~RUBY)
+D = Steep::Diagnostic
+
+target :test do
+  check "."
+  signature '.'
+
+  repo_path "../../../"
+
+  library "rubygems"
+  library "set"
+  library "optparse"
+  library "logger"
+  library "monitor"
+
+  library "yard:0.9"
+  library "rack:2.2.2"
+
+  configure_code_diagnostics(D::Ruby.all_error)
+end
+RUBY
