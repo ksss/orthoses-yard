@@ -5,3 +5,7 @@ end
 task :generate => [:src] do
   load 'generate.rb'
 end
+
+task :validate do
+  sh "rbs -I out validate --silent"
+end
