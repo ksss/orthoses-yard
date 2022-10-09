@@ -73,6 +73,8 @@ module Orthoses
 
       # @return [void]
       def generate_for_methods
+        return if yardoc.to_s.empty?
+
         yardoc.meths(inherited: false).each do |meth|
           # skip attribute methods because of generate_for_attributes
           next if meth.attr_info
@@ -82,7 +84,6 @@ module Orthoses
 
           namespace = meth.namespace
           method_name = meth.name
-          next if namespace.to_s.empty?
 
           begin
             mod = Object.const_get(namespace.to_s)
@@ -215,6 +216,7 @@ module Orthoses
         begin
           types_explainers = ::YARD::Tags::TypesExplainer::Parser.parse(tag_types.uniq.join(", "))
         rescue SyntaxError
+          Orthoses.logger.warn("#{tag_types} in #{yardoc.inspect} cannot parse as tags. use untyped instead")
           return untyped
         end
 
