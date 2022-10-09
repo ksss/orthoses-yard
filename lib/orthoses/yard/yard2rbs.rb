@@ -45,6 +45,7 @@ module Orthoses
         generate_for_attributes
         generate_for_methods
         generate_for_constants
+        generate_for_classvariable
       end
 
       # @return [void]
@@ -205,6 +206,15 @@ module Orthoses
           return_tags = const.tags('return')
           return_type = return_tags.empty? ? untyped : tag_types_to_rbs_type(return_tags.flat_map(&:types))
           block.call(const.namespace.to_s, const.docstring, "#{const.name}: #{return_type}")
+        end
+      end
+
+      # @return [void]
+      def generate_for_classvariable
+        yardoc.cvars.each do |cvar|
+          return_tags = cvar.tags('return')
+          return_type = return_tags.empty? ? untyped : tag_types_to_rbs_type(return_tags.flat_map(&:types))
+          block.call(cvar.namespace.to_s, cvar.docstring, "#{cvar.name}: #{return_type}")
         end
       end
 
