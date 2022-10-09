@@ -136,4 +136,42 @@ module YARD2RBSTest
       t.error("expect `#{expect}`, but got `#{actual}`")
     end
   end
+
+  module Const
+    # @return [Integer]
+    CONST = 1
+  end
+
+  def test_const(t)
+    yardoc = ::YARD::Registry.at('YARD2RBSTest::Const')
+    res = []
+    Orthoses::YARD::YARD2RBS.run(yardoc: yardoc) do |namespace, docstring, rbs|
+      res << [namespace, docstring, rbs] if rbs
+    end
+
+    expect = "CONST: Integer"
+    actual = res[0].last
+    unless expect == actual
+      t.error("expect `#{expect}`, but got `#{actual}`")
+    end
+  end
+
+  module ClassVariable
+    # @return [Integer]
+    @@classvariable = 1
+  end
+
+  def test_classvariable(t)
+    yardoc = ::YARD::Registry.at('YARD2RBSTest::ClassVariable')
+    res = []
+    Orthoses::YARD::YARD2RBS.run(yardoc: yardoc) do |namespace, docstring, rbs|
+      res << [namespace, docstring, rbs] if rbs
+    end
+
+    expect = "@@classvariable: Integer"
+    actual = res[0].last
+    unless expect == actual
+      t.error("expect `#{expect}`, but got `#{actual}`")
+    end
+  end
 end
