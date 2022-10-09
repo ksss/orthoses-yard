@@ -2,7 +2,7 @@ PATH
   remote: ../..
   specs:
     orthoses-yard (0.1.0)
-      orthoses
+      orthoses (~> 1.2.0)
       yard
 
 PATH
@@ -22,9 +22,9 @@ GEM
       reline (>= 0.3.1)
     highline (2.0.3)
     io-console (0.5.11)
-    irb (1.4.1)
+    irb (1.4.2)
       reline (>= 0.3.0)
-    orthoses (1.1.0)
+    orthoses (1.2.0)
       rbs (~> 2.0)
     parlour (5.0.0)
       commander (~> 4.5)
@@ -36,13 +36,14 @@ GEM
     rack (3.0.0)
     rainbow (3.1.1)
     rake (13.0.6)
-    rbs (2.6.0)
+    rbs (2.7.0)
     reline (0.3.1)
       io-console (~> 0.5)
-    sorbet-runtime (0.5.10445)
-    sord (4.0.0)
+    sorbet-runtime (0.5.10482)
+    sord (5.0.0)
       commander (~> 4.5)
       parlour (~> 5.0)
+      rbs (~> 2.0)
       sorbet-runtime
       yard
     webrick (1.7.0)
@@ -59,4 +60,4 @@ DEPENDENCIES
   yard!
 
 BUNDLED WITH
-   2.4.0.dev
+   2.3.16

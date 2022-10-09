@@ -7,7 +7,7 @@ sources:
 path: ".gem_rbs_collection"
 gems:
 - name: orthoses
-  version: 1.1.0
+  version: 1.2.0
   source:
     type: rubygems
 - name: rainbow
@@ -15,13 +15,17 @@ gems:
   source:
     type: git
     name: ruby/gem_rbs_collection
-    revision: 8e2fd75fc0e2bcbda9023e8c936fe5ba654b1436
+    revision: 6b07483f37484e2b7df168598b95b0c79be2924f
     remote: https://github.com/ruby/gem_rbs_collection.git
     repo_dir: gems
 - name: rbs
-  version: 2.6.0
+  version: 2.7.0
   source:
     type: rubygems
+- name: securerandom
+  version: '0'
+  source:
+    type: stdlib
 - name: logger
   version: '0'
   source:
@@ -38,11 +42,11 @@ gems:
   version: '0'
   source:
     type: stdlib
-- name: rubygems
+- name: tsort
   version: '0'
   source:
     type: stdlib
-- name: tsort
+- name: rdoc
   version: '0'
   source:
     type: stdlib
