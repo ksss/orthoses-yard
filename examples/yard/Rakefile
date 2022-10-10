@@ -1,8 +1,4 @@
-file :src do
-  sh "git clone --depth 1 https://github.com/lsegal/yard.git src"
-end
-
-task :generate => [:src] do
+task :generate do
   load 'generate.rb'
 end
 

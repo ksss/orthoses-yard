@@ -5,12 +5,6 @@ PATH
       orthoses (~> 1.2.0)
       yard
 
-PATH
-  remote: src
-  specs:
-    yard (0.9.28)
-      webrick (~> 1.7.0)
-
 GEM
   remote: https://rubygems.org/
   specs:
@@ -47,6 +41,8 @@ GEM
       sorbet-runtime
       yard
     webrick (1.7.0)
+    yard (0.9.28)
+      webrick (~> 1.7.0)
 
 PLATFORMS
   arm64-darwin-21
@@ -57,7 +53,7 @@ DEPENDENCIES
   rack
   rake
   sord
-  yard!
+  yard
 
 BUNDLED WITH
    2.3.16

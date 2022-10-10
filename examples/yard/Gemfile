@@ -2,7 +2,7 @@
 
 source "https://rubygems.org"
 
-gem "yard", path: "src"
+gem "yard"
 gem "orthoses-yard", path: "../../"
 gem "rake"
 gem "rack"

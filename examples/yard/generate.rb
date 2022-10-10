@@ -5,6 +5,9 @@ require 'erb'
 
 FileUtils.rm_rf('out')
 Orthoses.logger.level = :warn
+
+gem_path = Gem::Specification.find_by_name("yard").load_paths.first
+
 Orthoses::Builder.new do
   use Orthoses::CreateFileByName,
     base_dir: 'out'
@@ -32,8 +35,8 @@ Orthoses::Builder.new do
   end
   use Orthoses::YARD,
     parse: [
-      'src/lib/yard.rb',
-      'src/lib/yard/**/*.rb'
+      "#{gem_path}/yard.rb",
+      "#{gem_path}/yard/**/*.rb",
     ]
   use Orthoses::Autoload
   run -> {
