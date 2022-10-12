@@ -174,4 +174,38 @@ module YARD2RBSTest
       t.error("expect `#{expect}`, but got `#{actual}`")
     end
   end
+
+  module Aliases
+    # @return [Integer]
+    def foo
+    end
+    alias bar foo
+    alias_method :baz, :foo
+  end
+
+  def test_aliases(t)
+    yardoc = ::YARD::Registry.at('YARD2RBSTest::Aliases')
+    res = []
+    Orthoses::YARD::YARD2RBS.run(yardoc: yardoc) do |namespace, docstring, rbs|
+      res << [namespace, docstring, rbs] if rbs
+    end
+
+    expect = "def foo: () -> Integer"
+    actual = res[0].last
+    unless expect == actual
+      t.error("expect `#{expect}`, but got `#{actual}`")
+    end
+
+    expect = "alias bar foo"
+    actual = res[1].last
+    unless expect == actual
+      t.error("expect `#{expect}`, but got `#{actual}`")
+    end
+
+    expect = "alias baz foo"
+    actual = res[2].last
+    unless expect == actual
+      t.error("expect `#{expect}`, but got `#{actual}`")
+    end
+  end
 end

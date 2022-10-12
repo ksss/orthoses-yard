@@ -35,7 +35,7 @@ module Orthoses
       # @return [void]
       def run
         Orthoses.logger.info("YARD will generate about #{yardoc.inspect}")
-        block.call(yardoc.path, yardoc.docstring, nil)
+        block.call(yardoc.path, yardoc.docstring.all, nil)
         yardoc.children.each do |child|
           case child.type
           when :module, :class
@@ -56,15 +56,15 @@ module Orthoses
             if class_attributes[:read] && class_attributes[:write]
               visibility = class_attributes[:read].visibility == :private ? 'private ' : ''
               type = tag_types_to_rbs_type(class_attributes[:read].tags('return').flat_map(&:types))
-              block.call(yardoc.path, class_attributes[:read].docstring, "#{visibility}attr_accessor #{prefix}#{name}: #{type}")
+              block.call(yardoc.path, class_attributes[:read].docstring.all, "#{visibility}attr_accessor #{prefix}#{name}: #{type}")
             elsif class_attributes[:read]
               visibility = class_attributes[:read].visibility == :private ? 'private ' : ''
               type = tag_types_to_rbs_type(class_attributes[:read].tags('return').flat_map(&:types))
-              block.call(yardoc.path, class_attributes[:read].docstring, "#{visibility}attr_reader #{prefix}#{name}: #{type}")
+              block.call(yardoc.path, class_attributes[:read].docstring.all, "#{visibility}attr_reader #{prefix}#{name}: #{type}")
             elsif class_attributes[:write]
               visibility = class_attributes[:write].visibility == :private ? 'private ' : ''
               type = tag_types_to_rbs_type(class_attributes[:write].tags('return').flat_map(&:types))
-              block.call(yardoc.path, class_attributes[:write].docstring, "#{visibility}attr_writer #{prefix}#{name}: #{type}")
+              block.call(yardoc.path, class_attributes[:write].docstring.all, "#{visibility}attr_writer #{prefix}#{name}: #{type}")
             else
               raise "bug"
             end
@@ -100,6 +100,12 @@ module Orthoses
             end
           rescue NameError
             Orthoses.logger.warn("[YARD] skip #{meth.inspect} because cannot get method object")
+            next
+          end
+
+          if meth.is_alias?
+            orig_key = yardoc.aliases[meth]
+            block.call(yardoc.to_s, "", "alias #{prefix}#{meth.name} #{prefix}#{orig_key}")
             next
           end
 
@@ -196,7 +202,7 @@ module Orthoses
           )
 
           visibility = meth.visibility == :private ? 'private ' : ''
-          block.call(yardoc.to_s, meth.docstring, "#{visibility}def #{prefix}#{method_name}: #{method_type}")
+          block.call(yardoc.to_s, meth.docstring.all, "#{visibility}def #{prefix}#{method_name}: #{method_type}")
         end
       end
 
@@ -205,7 +211,7 @@ module Orthoses
         yardoc.constants(inherited: false).each do |const|
           return_tags = const.tags('return')
           return_type = return_tags.empty? ? untyped : tag_types_to_rbs_type(return_tags.flat_map(&:types))
-          block.call(const.namespace.to_s, const.docstring, "#{const.name}: #{return_type}")
+          block.call(const.namespace.to_s, const.docstring.all, "#{const.name}: #{return_type}")
         end
       end
 
@@ -214,7 +220,7 @@ module Orthoses
         yardoc.cvars.each do |cvar|
           return_tags = cvar.tags('return')
           return_type = return_tags.empty? ? untyped : tag_types_to_rbs_type(return_tags.flat_map(&:types))
-          block.call(cvar.namespace.to_s, cvar.docstring, "#{cvar.name}: #{return_type}")
+          block.call(cvar.namespace.to_s, cvar.docstring.all, "#{cvar.name}: #{return_type}")
         end
       end
 

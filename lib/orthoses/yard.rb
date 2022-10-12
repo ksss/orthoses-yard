@@ -20,7 +20,7 @@ module Orthoses
           case yardoc.type
           when :class, :module
             YARD2RBS.run(yardoc: yardoc) do |namespace, docstring, rbs|
-              comment = docstring.all.each_line.map { |line| "# #{line}" }.join
+              comment = docstring.each_line.map { |line| "# #{line}" }.join
               if rbs.nil?
                 store[namespace].comment = comment
               else
