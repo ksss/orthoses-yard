@@ -3,14 +3,17 @@ require 'fileutils'
 require 'pathname'
 require 'erb'
 
-FileUtils.rm_rf('out')
+output_dir = 'out'
+FileUtils.rm_rf(output_dir)
 Orthoses.logger.level = :warn
 
 gem_path = Gem::Specification.find_by_name("yard").load_paths.first
+notice = "# !!! GENERATED FILE !!!\n# Please see generators/yard-generator/README.md\n"
 
 Orthoses::Builder.new do
   use Orthoses::CreateFileByName,
-    base_dir: 'out'
+    base_dir: output_dir,
+    header: notice
   use Orthoses::Filter do |name, content|
     name.start_with?('YARD') ||
       name.start_with?('Ripper') ||
@@ -55,21 +58,24 @@ stdlib_dependencies = %w[
 ]
 
 def erb(template_filename, **vars)
-  "templates/#{template_filename}"
+  "templates/#{template_filename}.erb"
     .then { File.expand_path(_1) }
     .then { File.read(_1) }
     .then { ERB.new(_1, trim_mode: '<>').result_with_hash(vars) }
 end
 
-out = Pathname("out")
-out.join("EXTERNAL_TODO.rbs").write(erb("EXTERNAL_TODO.rbs"))
-out.join("manifest.yaml").write(erb("manifest.yaml.erb", stdlib_dependencies: stdlib_dependencies))
+out = Pathname(output_dir)
+out.join("EXTERNAL_TODO.rbs").write(erb("EXTERNAL_TODO.rbs", notice: notice))
+out.join("manifest.yaml").write(erb("manifest.yaml", notice: notice, stdlib_dependencies: stdlib_dependencies))
 out.join('_scripts').tap do |scripts|
   scripts.mkpath
-  scripts.join("test").write(erb("_scripts/test.erb", stdlib_dependencies: stdlib_dependencies))
+  scripts.join("test").tap do |test|
+    test.write(erb("_scripts/test", notice: notice, stdlib_dependencies: stdlib_dependencies))
+    test.chmod(0o755)
+  end
 end
 out.join('_test').tap do |test|
   test.mkpath
-  test.join("yard.rb").write(erb("_test/yard.rb"))
-  test.join('Steepfile').write(erb("_test/Steepfile.erb", stdlib_dependencies: stdlib_dependencies))
+  test.join("yard.rb").write(erb("_test/yard.rb", notice: notice))
+  test.join('Steepfile').write(erb("_test/Steepfile", notice: notice, stdlib_dependencies: stdlib_dependencies))
 end
