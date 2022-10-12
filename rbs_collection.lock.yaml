@@ -7,7 +7,7 @@ sources:
 path: ".gem_rbs_collection"
 gems:
 - name: orthoses
-  version: 1.2.0
+  version: 1.3.0
   source:
     type: rubygems
 - name: rainbow
@@ -15,7 +15,7 @@ gems:
   source:
     type: git
     name: ruby/gem_rbs_collection
-    revision: 6b07483f37484e2b7df168598b95b0c79be2924f
+    revision: 52be56d9c2741c009f070d7a900743d28b5dba92
     remote: https://github.com/ruby/gem_rbs_collection.git
     repo_dir: gems
 - name: rbs
