@@ -116,8 +116,6 @@ module Orthoses
           required_keywords = {}
           optional_keywords = {}
           rest_keywords = nil
-          yield_params = []
-          yield_return = nil
 
           requireds = required_positionals
 
