@@ -1,3 +1,5 @@
+<%= notice %>
+
 # It is a temporary definition of a type definition
 # for which the library RBS does not currently exist.
 # Once the library RBS is defined and included in rbs_collection.lock.yaml,
@@ -23,7 +25,7 @@ module WEBrick
 end
 
 module RDoc
-  module Markup
+  class Markup
     class ToHtml
     end
   end

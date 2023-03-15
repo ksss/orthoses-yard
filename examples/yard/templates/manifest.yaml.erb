@@ -1,4 +1,6 @@
+<%= notice %>
+
 dependencies:
 <% stdlib_dependencies.each do |stdlib| %>
-  - <%= stdlib %>
+  - name: <%= stdlib %>
 <% end %>

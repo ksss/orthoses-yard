@@ -15,7 +15,7 @@ gems:
   source:
     type: git
     name: ruby/gem_rbs_collection
-    revision: 6b07483f37484e2b7df168598b95b0c79be2924f
+    revision: b845fbcd71c0e370c9aa64032fb9e560a0a4f651
     remote: https://github.com/ruby/gem_rbs_collection.git
     repo_dir: gems
 - name: io-console
@@ -23,11 +23,11 @@ gems:
   source:
     type: stdlib
 - name: orthoses
-  version: 1.2.0
+  version: 1.3.0
   source:
     type: rubygems
 - name: orthoses-yard
-  version: 0.1.0
+  version: 0.2.0
   source:
     type: rubygems
 - name: rack
@@ -35,7 +35,7 @@ gems:
   source:
     type: git
     name: ruby/gem_rbs_collection
-    revision: 6b07483f37484e2b7df168598b95b0c79be2924f
+    revision: b845fbcd71c0e370c9aa64032fb9e560a0a4f651
     remote: https://github.com/ruby/gem_rbs_collection.git
     repo_dir: gems
 - name: rainbow
@@ -43,7 +43,7 @@ gems:
   source:
     type: git
     name: ruby/gem_rbs_collection
-    revision: 6b07483f37484e2b7df168598b95b0c79be2924f
+    revision: b845fbcd71c0e370c9aa64032fb9e560a0a4f651
     remote: https://github.com/ruby/gem_rbs_collection.git
     repo_dir: gems
 - name: logger

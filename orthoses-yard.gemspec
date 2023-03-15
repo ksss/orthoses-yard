@@ -21,7 +21,7 @@ Gem::Specification.new do |spec|
   spec.files = Dir.chdir(File.expand_path(__dir__)) do
     `git ls-files -z`.split("\x0").reject do |f|
       next true if (f == __FILE__)
-      next true if f.match?(%r{\A(?:bin|known_sig)/}) # dir
+      next true if f.match?(%r{\A(?:bin|known_sig|examples)/}) # dir
       next true if f.match?(%r{\A\.(?:git)}) # git
       next true if f.match?(%r{\A(?:rbs_collection|Steepfile|Rakefile)}) # top file
       next true if f.match?(%r{_test\.rb\z}) # test
@@ -32,6 +32,6 @@ Gem::Specification.new do |spec|
   spec.executables = spec.files.grep(%r{\Aexe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
-  spec.add_dependency "orthoses", "~> 1.3.0"
+  spec.add_dependency "orthoses", ">= 1.3.0", "< 2.0"
   spec.add_dependency "yard"
 end
