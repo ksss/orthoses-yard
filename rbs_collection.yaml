@@ -9,6 +9,8 @@ sources:
 path: .gem_rbs_collection
 
 gems:
+  - name: orthoses
+  - name: yard
   - name: orthoses-yard
     ignore: true
   - name: steep
