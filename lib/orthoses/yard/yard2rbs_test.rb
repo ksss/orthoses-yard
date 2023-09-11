@@ -1,4 +1,4 @@
-require 'yard'
+require 'test_helper'
 
 module YARD2RBSTest
   ::YARD::Registry.clear

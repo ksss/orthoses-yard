@@ -1,3 +1,5 @@
+require 'test_helper'
+
 module YARDTest
   # @param [Boolean] a
   # @param [String, nil] b
