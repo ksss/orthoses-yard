@@ -11,6 +11,7 @@ module Orthoses
       @parse = Array(parse)
     end
 
+    # @return [void]
     def call
       @loader.call.tap do |store|
         require 'yard'
