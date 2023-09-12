@@ -4,16 +4,17 @@ require 'pathname'
 require 'erb'
 
 output_dir = 'out'
-FileUtils.rm_rf(output_dir)
-Orthoses.logger.level = :warn
+Orthoses.logger.level = :info
 
 gem_path = Gem::Specification.find_by_name("yard").load_paths.first
 notice = "# !!! GENERATED FILE !!!\n# Please see generators/yard-generator/README.md\n"
 
 Orthoses::Builder.new do
   use Orthoses::CreateFileByName,
-    base_dir: output_dir,
-    header: notice
+    depth: 2,
+    to: output_dir,
+    header: notice,
+    rmtree: true
   use Orthoses::Filter do |name, content|
     name.start_with?('YARD') ||
       name.start_with?('Ripper') ||
@@ -38,8 +39,8 @@ Orthoses::Builder.new do
   end
   use Orthoses::YARD,
     parse: [
-      "#{gem_path}/yard.rb",
-      "#{gem_path}/yard/**/*.rb",
+      "#{gem_path}/*.rb",
+      "#{gem_path}/**/*.rb",
     ]
   use Orthoses::Autoload
   run -> {
