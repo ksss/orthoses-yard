@@ -1,6 +1,0 @@
-# GENERATED FILE
-
-class Orthoses::YARD
-  def initialize: (untyped loader, parse: untyped) -> void
-  VERSION: untyped
-end

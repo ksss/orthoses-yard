@@ -13,18 +13,19 @@ task :sig do
   require 'orthoses-yard'
   require 'pathname'
 
-  Pathname('sig').rmtree rescue nil
   Orthoses::Builder.new do
     use Orthoses::CreateFileByName,
-      base_dir: 'sig',
-      header: '# GENERATED FILE'
+      depth: 1,
+      to: 'sig',
+      header: '# GENERATED FILE',
+      rmtree: true
     use Orthoses::Filter do |name, _|
       name.start_with?('Orthoses::YARD')
     end
     use Orthoses::YARD,
-      parse: 'lib/orthoses/**/*.rb'
+      parse: Dir.glob("lib/**/*.rb").grep_v(/_test\.rb\z/)
     run -> {}
   end.call
 end
 
-task default: :test
+task default: [:test, :sig]

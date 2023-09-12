@@ -1,5 +1,13 @@
 # GENERATED FILE
 
+# use Orthoses::YARD, parse: "lib/**/*.rb"
+class Orthoses::YARD
+  def initialize: (untyped loader, parse: untyped) -> void
+  # @return [void]
+  def call: () -> void
+  VERSION: untyped
+end
+
 class Orthoses::YARD::YARD2RBS
   # @return [YARD::CodeObjects::t]
   attr_reader yardoc: untyped
@@ -20,6 +28,8 @@ class Orthoses::YARD::YARD2RBS
   def generate_for_methods: () -> void
   # @return [void]
   def generate_for_constants: () -> void
+  # @return [void]
+  def generate_for_classvariable: () -> void
   # @return [RBS::Types::t]
   def tag_types_to_rbs_type: (untyped tag_types) -> untyped
   # @return [RBS::Types::t]

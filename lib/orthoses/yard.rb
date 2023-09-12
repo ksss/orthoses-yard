@@ -11,17 +11,24 @@ module Orthoses
       @parse = Array(parse)
     end
 
+    # @return [void]
     def call
       @loader.call.tap do |store|
         require 'yard'
 
         ::YARD.parse(@parse)
         ::YARD::Registry.root.children.each do |yardoc|
+          # Skip anonymous yardoc
+          next unless yardoc.file
+
+          # Skip external doc (e.g. pry-doc)
+          next unless @parse.any? { |pattern| File.fnmatch(pattern, yardoc.file) }
+
           case yardoc.type
           when :class, :module
             YARD2RBS.run(yardoc: yardoc) do |namespace, docstring, rbs|
               comment = docstring.each_line.map { |line| "# #{line}" }.join
-              if rbs.nil?
+              if rbs.nil? && comment && !store.has_key?(namespace)
                 store[namespace].comment = comment
               else
                 Orthoses.logger.debug("#{namespace} << #{rbs}")
