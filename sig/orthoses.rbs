@@ -32,8 +32,6 @@ class Orthoses::YARD::YARD2RBS
   def generate_for_classvariable: () -> void
   # @return [RBS::Types::t]
   def tag_types_to_rbs_type: (untyped tag_types) -> untyped
-  # @return [RBS::Types::t]
-  def wrap: (untyped types) -> untyped
   # @return [Array<RBS::Types::t>]
   def recursive_resolve: (untyped types_explainer_types) -> untyped
   # @return [Array<RBS::Types::Bases::Any>]

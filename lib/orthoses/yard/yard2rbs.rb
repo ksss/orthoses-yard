@@ -234,50 +234,8 @@ module Orthoses
           return untyped
         end
 
-        wrap(recursive_resolve(types_explainers)).tap do |rbs|
+        Utils::TypeList.new(recursive_resolve(types_explainers)).inject.tap do |rbs|
           Orthoses.logger.debug("#{yardoc.inspect} tag #{tag_types} => #{rbs}")
-        end
-      end
-
-      # @return [RBS::Types::t]
-      def wrap(types)
-        if types.nil? || types.empty? || types == [untyped]
-          return untyped
-        end
-
-        if 1 < types.length
-          if index = types.find_index { |t| t.to_s == "nil" }
-            types.delete_at(index)
-            is_optional = true
-            if types == [untyped]
-              return untyped
-            end
-          end
-        end
-        is_union = 1 < types.length
-
-        if is_union
-          if is_optional
-            ::RBS::Types::Optional.new(
-              type: ::RBS::Types::Union.new(
-                types: types,
-                location: nil,
-              ),
-              location: nil,
-            )
-          else
-            ::RBS::Types::Union.new(
-              types: types,
-              location: nil,
-            )
-          end
-        elsif is_optional
-          ::RBS::Types::Optional.new(
-            type: types.first,
-            location: nil,
-          )
-        else
-          types.first
         end
       end
 
@@ -291,7 +249,7 @@ module Orthoses
               location: nil
             )
           when ::YARD::Tags::TypesExplainer::CollectionType
-            type = wrap(recursive_resolve(types_explainer_type.types))
+            type = Utils::TypeList.new(recursive_resolve(types_explainer_type.types)).inject
             if types_explainer_type.name == "Class"
               if type.to_s == "untyped"
                 untyped
@@ -312,8 +270,8 @@ module Orthoses
             ::RBS::Types::ClassInstance.new(
               name: TypeName(types_explainer_type.name),
               args: [
-                wrap(recursive_resolve(types_explainer_type.key_types)),
-                wrap(recursive_resolve(types_explainer_type.value_types)),
+                Utils::TypeList.new(recursive_resolve(types_explainer_type.key_types)).inject,
+                Utils::TypeList.new(recursive_resolve(types_explainer_type.value_types)).inject,
               ],
               location: nil
             )
