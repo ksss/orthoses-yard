@@ -340,11 +340,11 @@ module Orthoses
                   when "Fixnum"
                     "Integer"
                   else
-                    resolved = ::YARD::Registry.resolve(yardoc.namespace, types_explainer_type.name, true, false)
+                    resolved = ::YARD::Registry.resolve(yardoc, types_explainer_type.name, true, false)
                     if resolved
                       resolved.to_s
                     else
-                      Orthoses.logger.warn("#{types_explainer_type.name} in #{yardoc.namespace} set `untyped` because it cannot resolved type")
+                      Orthoses.logger.warn("yardoc type=[#{types_explainer_type.name}] in #{yardoc.path} set `untyped` because it cannot resolved type by `::YARD::Registry.resolve`")
                       next untyped
                     end
                   end
