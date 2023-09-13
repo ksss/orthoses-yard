@@ -48,6 +48,32 @@ module Orthoses
         generate_for_classvariable
       end
 
+      # @return [RBS::Types::t]
+      def tag_types_to_rbs_type(tag_types)
+        return untyped if tag_types.nil?
+
+        tag_types = tag_types.compact.uniq
+        return untyped if tag_types.empty?
+
+        begin
+          types_explainers = ::YARD::Tags::TypesExplainer::Parser.parse(tag_types.join(", "))
+        rescue SyntaxError => e
+          Orthoses.logger.warn("#{tag_types} in #{yardoc.inspect} cannot parse as tags. use untyped instead")
+          Orthoses.logger.warn("    => exception message=`#{e.message}`")
+          return untyped
+        end
+
+        Utils::TypeList.new(recursive_resolve(types_explainers)).inject.tap do |rbs|
+          Orthoses.logger.debug("#{yardoc.inspect} tag #{tag_types} => #{rbs}")
+        end
+      end
+
+      private
+
+      def class_of(mod)
+        Kernel.instance_method(:class).bind_call(mod)
+      end
+
       # @return [void]
       def generate_for_attributes
         yardoc.attributes.each do |kind, attributes|
@@ -88,13 +114,13 @@ module Orthoses
 
           begin
             mod = Object.const_get(namespace.to_s)
-            case meth.scope
-            when :class
-              prefix = 'self.'
-              method_object = mod.method(method_name)
-            when :instance
+            case
+            when meth.scope == :instance || class_of(meth) == ::YARD::CodeObjects::ExtendedMethodObject
               prefix = ''
               method_object = mod.instance_method(method_name)
+            when meth.scope == :class
+              prefix = 'self.'
+              method_object = mod.method(method_name)
             else
               raise "bug"
             end
@@ -219,23 +245,6 @@ module Orthoses
           return_tags = cvar.tags('return')
           return_type = return_tags.empty? ? untyped : tag_types_to_rbs_type(return_tags.flat_map(&:types))
           block.call(cvar.namespace.to_s, cvar.docstring.all, "#{cvar.name}: #{return_type}")
-        end
-      end
-
-      # @return [RBS::Types::t]
-      def tag_types_to_rbs_type(tag_types)
-        return untyped if tag_types.nil?
-        return untyped if tag_types.empty?
-
-        begin
-          types_explainers = ::YARD::Tags::TypesExplainer::Parser.parse(tag_types.uniq.join(", "))
-        rescue SyntaxError
-          Orthoses.logger.warn("#{tag_types} in #{yardoc.inspect} cannot parse as tags. use untyped instead")
-          return untyped
-        end
-
-        Utils::TypeList.new(recursive_resolve(types_explainers)).inject.tap do |rbs|
-          Orthoses.logger.debug("#{yardoc.inspect} tag #{tag_types} => #{rbs}")
         end
       end
 
