@@ -22,20 +22,18 @@ class Orthoses::YARD::YARD2RBS
   def initialize: (yardoc: untyped, block: untyped) -> void
   # @return [void]
   def run: () -> void
-  # @return [void]
-  def generate_for_attributes: () -> void
-  # @return [void]
-  def generate_for_methods: () -> void
-  # @return [void]
-  def generate_for_constants: () -> void
-  # @return [void]
-  def generate_for_classvariable: () -> void
   # @return [RBS::Types::t]
   def tag_types_to_rbs_type: (untyped tag_types) -> untyped
-  # @return [RBS::Types::t]
-  def wrap: (untyped types) -> untyped
+  # @return [void]
+  private def generate_for_attributes: () -> void
+  # @return [void]
+  private def generate_for_methods: () -> void
+  # @return [void]
+  private def generate_for_constants: () -> void
+  # @return [void]
+  private def generate_for_classvariable: () -> void
   # @return [Array<RBS::Types::t>]
-  def recursive_resolve: (untyped types_explainer_types) -> untyped
+  private def recursive_resolve: (untyped types_explainer_types) -> untyped
   # @return [Array<RBS::Types::Bases::Any>]
-  def temporary_type_params: (untyped name) -> Array[RBS::Types::Bases::Any]
+  private def temporary_type_params: (untyped name) -> Array[RBS::Types::Bases::Any]
 end

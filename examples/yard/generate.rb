@@ -4,7 +4,7 @@ require 'pathname'
 require 'erb'
 
 output_dir = 'out'
-Orthoses.logger.level = :info
+Orthoses.logger.level = :warn
 
 gem_path = Gem::Specification.find_by_name("yard").load_paths.first
 notice = "# !!! GENERATED FILE !!!\n# Please see generators/yard-generator/README.md\n"
@@ -45,6 +45,7 @@ Orthoses::Builder.new do
   use Orthoses::Autoload
   run -> {
     require 'yard'
+    require "yard/i18n/po_parser"
     YARD::Tags::Library.define_tag("YARD Tag Signature", 'yard.signature'.to_sym, nil)
     YARD::Tags::Library.define_tag("YARD Tag", 'yard.tag'.to_sym, :with_types_and_name)
     YARD::Tags::Library.define_tag("YARD Directive", 'yard.directive'.to_sym, :with_types_and_name)

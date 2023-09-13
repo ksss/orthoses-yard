@@ -48,6 +48,32 @@ module Orthoses
         generate_for_classvariable
       end
 
+      # @return [RBS::Types::t]
+      def tag_types_to_rbs_type(tag_types)
+        return untyped if tag_types.nil?
+
+        tag_types = tag_types.compact.uniq
+        return untyped if tag_types.empty?
+
+        begin
+          types_explainers = ::YARD::Tags::TypesExplainer::Parser.parse(tag_types.join(", "))
+        rescue SyntaxError => e
+          Orthoses.logger.warn("#{tag_types} in #{yardoc.inspect} cannot parse as tags. use untyped instead")
+          Orthoses.logger.warn("    => exception message=`#{e.message}`")
+          return untyped
+        end
+
+        Utils::TypeList.new(recursive_resolve(types_explainers)).inject.tap do |rbs|
+          Orthoses.logger.debug("#{yardoc.inspect} tag #{tag_types} => #{rbs}")
+        end
+      end
+
+      private
+
+      def class_of(mod)
+        Kernel.instance_method(:class).bind_call(mod)
+      end
+
       # @return [void]
       def generate_for_attributes
         yardoc.attributes.each do |kind, attributes|
@@ -88,13 +114,13 @@ module Orthoses
 
           begin
             mod = Object.const_get(namespace.to_s)
-            case meth.scope
-            when :class
-              prefix = 'self.'
-              method_object = mod.method(method_name)
-            when :instance
+            case
+            when meth.scope == :instance || class_of(meth) == ::YARD::CodeObjects::ExtendedMethodObject
               prefix = ''
               method_object = mod.instance_method(method_name)
+            when meth.scope == :class
+              prefix = 'self.'
+              method_object = mod.method(method_name)
             else
               raise "bug"
             end
@@ -222,65 +248,6 @@ module Orthoses
         end
       end
 
-      # @return [RBS::Types::t]
-      def tag_types_to_rbs_type(tag_types)
-        return untyped if tag_types.nil?
-        return untyped if tag_types.empty?
-
-        begin
-          types_explainers = ::YARD::Tags::TypesExplainer::Parser.parse(tag_types.uniq.join(", "))
-        rescue SyntaxError
-          Orthoses.logger.warn("#{tag_types} in #{yardoc.inspect} cannot parse as tags. use untyped instead")
-          return untyped
-        end
-
-        wrap(recursive_resolve(types_explainers)).tap do |rbs|
-          Orthoses.logger.debug("#{yardoc.inspect} tag #{tag_types} => #{rbs}")
-        end
-      end
-
-      # @return [RBS::Types::t]
-      def wrap(types)
-        if types.nil? || types.empty? || types == [untyped]
-          return untyped
-        end
-
-        if 1 < types.length
-          if index = types.find_index { |t| t.to_s == "nil" }
-            types.delete_at(index)
-            is_optional = true
-            if types == [untyped]
-              return untyped
-            end
-          end
-        end
-        is_union = 1 < types.length
-
-        if is_union
-          if is_optional
-            ::RBS::Types::Optional.new(
-              type: ::RBS::Types::Union.new(
-                types: types,
-                location: nil,
-              ),
-              location: nil,
-            )
-          else
-            ::RBS::Types::Union.new(
-              types: types,
-              location: nil,
-            )
-          end
-        elsif is_optional
-          ::RBS::Types::Optional.new(
-            type: types.first,
-            location: nil,
-          )
-        else
-          types.first
-        end
-      end
-
       # @return [Array<RBS::Types::t>]
       def recursive_resolve(types_explainer_types)
         types_explainer_types.map do |types_explainer_type|
@@ -291,7 +258,7 @@ module Orthoses
               location: nil
             )
           when ::YARD::Tags::TypesExplainer::CollectionType
-            type = wrap(recursive_resolve(types_explainer_type.types))
+            type = Utils::TypeList.new(recursive_resolve(types_explainer_type.types)).inject
             if types_explainer_type.name == "Class"
               if type.to_s == "untyped"
                 untyped
@@ -312,8 +279,8 @@ module Orthoses
             ::RBS::Types::ClassInstance.new(
               name: TypeName(types_explainer_type.name),
               args: [
-                wrap(recursive_resolve(types_explainer_type.key_types)),
-                wrap(recursive_resolve(types_explainer_type.value_types)),
+                Utils::TypeList.new(recursive_resolve(types_explainer_type.key_types)).inject,
+                Utils::TypeList.new(recursive_resolve(types_explainer_type.value_types)).inject,
               ],
               location: nil
             )
@@ -373,11 +340,11 @@ module Orthoses
                   when "Fixnum"
                     "Integer"
                   else
-                    resolved = ::YARD::Registry.resolve(yardoc.namespace, types_explainer_type.name, true, false)
+                    resolved = ::YARD::Registry.resolve(yardoc, types_explainer_type.name, true, false)
                     if resolved
                       resolved.to_s
                     else
-                      Orthoses.logger.warn("#{types_explainer_type.name} in #{yardoc.namespace} set `untyped` because it cannot resolved type")
+                      Orthoses.logger.warn("yardoc type=[#{types_explainer_type.name}] in #{yardoc.path} set `untyped` because it cannot resolved type by `::YARD::Registry.resolve`")
                       next untyped
                     end
                   end

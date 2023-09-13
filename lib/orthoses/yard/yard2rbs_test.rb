@@ -15,8 +15,8 @@ module YARD2RBSTest
       [["123"], "123"],
       [["String"], "String"],
       [["Boolean"], "bool"],
-      [["true"], "true"],
-      [["false"], "false"],
+      [["true"], "bool"],
+      [["false"], "bool"],
       [["void"], "void"],
       [["self"], "self"],
       [["Object"], "untyped"],
@@ -204,6 +204,32 @@ module YARD2RBSTest
 
     expect = "alias baz foo"
     actual = res[2].last
+    unless expect == actual
+      t.error("expect `#{expect}`, but got `#{actual}`")
+    end
+  end
+
+  class Resolver
+    module Foo
+      class Bar
+      end
+    end
+
+    include Foo
+
+    # @return [Bar]
+    def foo
+    end
+  end
+  def test_resolver(t)
+    yardoc = ::YARD::Registry.at('YARD2RBSTest::Resolver')
+    res = []
+    Orthoses::YARD::YARD2RBS.run(yardoc: yardoc) do |namespace, docstring, rbs|
+      res << [namespace, docstring, rbs] if rbs
+    end
+
+    expect = "def foo: () -> YARD2RBSTest::Resolver::Foo::Bar"
+    actual = res[0].last
     unless expect == actual
       t.error("expect `#{expect}`, but got `#{actual}`")
     end
