@@ -22,7 +22,7 @@ module Orthoses
           next unless yardoc.file
 
           # Skip external doc (e.g. pry-doc)
-          next unless @parse.any? { |pattern| File.fnmatch(pattern, yardoc.file) }
+          next unless @parse.any? { |pattern| File.fnmatch(pattern, yardoc.file, File::FNM_EXTGLOB | File::FNM_PATHNAME) }
 
           case yardoc.type
           when :class, :module

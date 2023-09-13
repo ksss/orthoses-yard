@@ -39,7 +39,6 @@ Orthoses::Builder.new do
   end
   use Orthoses::YARD,
     parse: [
-      "#{gem_path}/*.rb",
       "#{gem_path}/**/*.rb",
     ]
   use Orthoses::Autoload
