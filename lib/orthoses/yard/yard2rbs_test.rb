@@ -16,12 +16,17 @@ module YARD2RBSTest
       [["String"], "String"],
       [["Boolean"], "bool"],
       [["true"], "bool"],
+      [["TrueClass"], "bool"],
       [["false"], "bool"],
+      [["FalseClass"], "bool"],
+      [["true", "false"], "bool"],
+      [["TrueClass", "FalseClass"], "bool"],
       [["void"], "void"],
       [["self"], "self"],
       [["Object"], "untyped"],
       [["nil"], "nil"],
       [["nil", "nil"], "nil"],
+      [["NilClass"], "nil"],
       [["Object", "nil"], "untyped"],
       [["String", "nil"], "String?"],
       [["String", "Symbol"], "String | Symbol"],
@@ -33,6 +38,7 @@ module YARD2RBSTest
       [["Array(Array(Symbol))"], "[[Symbol]]"],
       [["Hash"], "Hash[untyped, untyped]"],
       [["Hash{Symbol => String}"], "Hash[Symbol, String]"],
+      [["_aaa"], "untyped"]
     ].each do |tags, type|
       actual = g.tag_types_to_rbs_type(tags)
       expect = ::RBS::Parser.parse_type(type)

@@ -314,8 +314,14 @@ module Orthoses
               # end
             else
               case types_explainer_type.name
-              when "Object" then next untyped
-              when "Boolean" then next bool
+              when "Object"
+                next untyped
+              when "Boolean", "TrueClass", "FalseClass", "true", "false"
+                next bool
+              when "NilClass", "nil"
+                next ::RBS::Types::Bases::Nil.new(location: nil)
+              when "Fixnum"
+                next ::RBS::Types::ClassInstance.new(name: TypeName("Integer"), args: [], location: nil)
               end
 
               begin
@@ -326,6 +332,7 @@ module Orthoses
                 when ::RBS::Types::Alias
                 end
               rescue ::RBS::ParsingError
+                # will be unresolve type
               end
 
               if Utils.rbs_defined_class?(types_explainer_type.name, collection: true)
@@ -335,22 +342,13 @@ module Orthoses
                   location: nil
                 )
               else
-                name =
-                  case types_explainer_type.name
-                  when "Fixnum"
-                    "Integer"
-                  else
-                    resolved = ::YARD::Registry.resolve(yardoc, types_explainer_type.name, true, false)
-                    if resolved
-                      resolved.to_s
-                    else
-                      Orthoses.logger.warn("yardoc type=[#{types_explainer_type.name}] in #{yardoc.path} set `untyped` because it cannot resolved type by `::YARD::Registry.resolve`")
-                      next untyped
-                    end
-                  end
-
+                resolved = ::YARD::Registry.resolve(yardoc, types_explainer_type.name, true, false)
+                unless resolved
+                  Orthoses.logger.warn("yardoc type=[#{types_explainer_type.name}] in #{yardoc.path} set `untyped` because it cannot resolved type by `::YARD::Registry.resolve`")
+                  next untyped
+                end
                 ::RBS::Types::ClassInstance.new(
-                  name: TypeName(name),
+                  name: TypeName(resolved.to_s),
                   args: [],
                   location: nil
                 )
