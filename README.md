@@ -53,7 +53,8 @@ end
 ```rb
 use Orthoses::YARD,
   parse: ['{lib,app}/**/*.rb'], # Target files (require)
-  use_cache: true               # Use cache .yardoc database (optional default:true)
+  use_cache: true,              # Use cache .yardoc database (optional default=true)
+  log_level: :debug             # Set log level for YARD (optional default=nil)
 ```
 
 Please see also https://github.com/ksss/orthoses-yard/blob/main/examples/yard/generate.rb

@@ -6,16 +6,23 @@ require_relative "yard/yard2rbs"
 module Orthoses
   # use Orthoses::YARD, parse: "lib/**/*.rb"
   class YARD
-    def initialize(loader, parse:, use_cache: true)
+    # @param loader
+    # @param [<String>, String] parse Target files
+    # @param [Boolean] use_cache Use cache .yardoc
+    # @param [Symbol, nil] log_level Set YARD log level
+    def initialize(loader, parse:, use_cache: true, log_level: nil)
       @loader = loader
       @parse = Array(parse)
       @use_cache = use_cache
+      @log_level = log_level
     end
 
     # @return [void]
     def call
       @loader.call.tap do |store|
         require 'yard'
+
+        log.level = @log_level if @log_level
 
         ::YARD::Registry.load if @use_cache
         ::YARD.parse(@parse)
