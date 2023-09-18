@@ -2,7 +2,11 @@
 
 # use Orthoses::YARD, parse: "lib/**/*.rb"
 class Orthoses::YARD
-  def initialize: (untyped loader, parse: untyped) -> void
+  # @param loader
+  # @param [<String>, String] parse Target files
+  # @param [Boolean] use_cache Use cache .yardoc
+  # @param [Symbol, nil] log_level Set YARD log level
+  def initialize: (untyped loader, parse: Array[String] | String, ?use_cache: bool, ?log_level: Symbol?) -> void
   # @return [void]
   def call: () -> void
   VERSION: untyped
