@@ -6,9 +6,10 @@ require_relative "yard/yard2rbs"
 module Orthoses
   # use Orthoses::YARD, parse: "lib/**/*.rb"
   class YARD
-    def initialize(loader, parse:)
+    def initialize(loader, parse:, use_cache: true)
       @loader = loader
       @parse = Array(parse)
+      @use_cache = use_cache
     end
 
     # @return [void]
@@ -16,7 +17,9 @@ module Orthoses
       @loader.call.tap do |store|
         require 'yard'
 
+        ::YARD::Registry.load if @use_cache
         ::YARD.parse(@parse)
+        ::YARD::Registry.save(true) if @use_cache
         ::YARD::Registry.root.children.each do |yardoc|
           # Skip anonymous yardoc
           next unless yardoc.file
