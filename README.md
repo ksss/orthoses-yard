@@ -50,7 +50,13 @@ end
 
 ## Usage
 
-Please see https://github.com/ksss/orthoses-yard/blob/main/examples/yard/Rakefile
+```rb
+use Orthoses::YARD,
+  parse: ['{lib,app}/**/*.rb'], # Target files (require)
+  use_cache: true               # Use cache .yardoc database (optional default:true)
+```
+
+Please see also https://github.com/ksss/orthoses-yard/blob/main/examples/yard/generate.rb
 
 ## Development
 
