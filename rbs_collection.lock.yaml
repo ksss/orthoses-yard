@@ -2,12 +2,16 @@
 sources:
 - type: git
   name: ruby/gem_rbs_collection
-  revision: 248499a924c3cb331d40ca667d40528814043788
+  revision: bee3f8fc08398e05a1484c6e96826e68269d8364
   remote: https://github.com/ruby/gem_rbs_collection.git
   repo_dir: gems
 path: ".gem_rbs_collection"
 gems:
 - name: abbrev
+  version: '0'
+  source:
+    type: stdlib
+- name: base64
   version: '0'
   source:
     type: stdlib
@@ -28,21 +32,33 @@ gems:
   source:
     type: stdlib
 - name: orthoses
-  version: 1.11.0
+  version: 1.12.0
   source:
     type: rubygems
 - name: pathname
   version: '0'
   source:
     type: stdlib
+- name: rainbow
+  version: '3.0'
+  source:
+    type: git
+    name: ruby/gem_rbs_collection
+    revision: bee3f8fc08398e05a1484c6e96826e68269d8364
+    remote: https://github.com/ruby/gem_rbs_collection.git
+    repo_dir: gems
 - name: rbs
-  version: 3.2.1
+  version: 3.2.2
   source:
     type: rubygems
 - name: rdoc
   version: '0'
   source:
     type: stdlib
+- name: rubocop-yard
+  version: 0.4.0
+  source:
+    type: rubygems
 - name: tsort
   version: '0'
   source:

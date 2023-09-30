@@ -1,7 +1,7 @@
 PATH
   remote: ../..
   specs:
-    orthoses-yard (0.3.0)
+    orthoses-yard (0.4.0)
       orthoses (>= 1.5.0, < 2.0)
       yard
 
@@ -19,7 +19,7 @@ GEM
     irb (1.8.1)
       rdoc
       reline (>= 0.3.8)
-    orthoses (1.11.0)
+    orthoses (1.12.0)
       rbs (~> 3.0)
     parlour (5.0.0)
       commander (~> 4.5)
