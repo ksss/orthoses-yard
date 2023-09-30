@@ -269,11 +269,18 @@ module Orthoses
                 )
               end
             else
-              ::RBS::Types::ClassInstance.new(
-                name: TypeName(types_explainer_type.name),
-                args: [type],
-                location: nil
-              )
+              name = TypeName(types_explainer_type.name)
+              generics_count = Utils.known_type_params(name.to_s)&.length || 0
+              if 2 <= generics_count
+                Orthoses.logger.warn("Cannot convert to rbs since generics mismatch. `#{name}` has #{generics_count} generics in RBS. But YARD tag type is `#{types_explainer_type.to_s}`. Use untyped instead.")
+                untyped
+              else
+                ::RBS::Types::ClassInstance.new(
+                  name: name,
+                  args: [type],
+                  location: nil
+                )
+              end
             end
           when ::YARD::Tags::TypesExplainer::HashCollectionType
             ::RBS::Types::ClassInstance.new(

@@ -69,6 +69,12 @@ module YARD2RBSTest
     # @yieldreturn [String]
     def qux
     end
+
+    # @param [List<String>] a
+    # @param [Array<String>] b
+    # @return [Hash<String>]
+    def collection_type(a, b)
+    end
   end
 
   def test_method(t)
@@ -98,6 +104,12 @@ module YARD2RBSTest
 
     expect = "def qux: () { () -> String } -> untyped"
     actual = res[3].last
+    unless expect == actual
+      t.error("expect `#{expect}`, but got `#{actual}`")
+    end
+
+    expect = "def collection_type: (List[String] a, Array[String] b) -> untyped"
+    actual = res[4].last
     unless expect == actual
       t.error("expect `#{expect}`, but got `#{actual}`")
     end
