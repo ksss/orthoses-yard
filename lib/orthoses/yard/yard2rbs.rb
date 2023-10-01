@@ -272,7 +272,7 @@ module Orthoses
               name = TypeName(types_explainer_type.name)
               type_params = temporary_type_params(name.to_s)
               args = if 2 <= type_params.length
-                Orthoses.logger.warn("Cannot convert to rbs since generics mismatch. `#{name}` has #{type_params.length} generics in RBS. But YARD tag type is `#{types_explainer_type.to_s}`. Use untyped instead.")
+                Orthoses.logger.warn("Cannot convert to rbs since generics mismatch. `#{name}` has #{type_params.length} generics in RBS. But YARD tag type is `#{types_explainer_type.to_s}`. Use `#{name}[#{type_params.join(', ')}]` instead.")
                 type_params
               else
                 [type]
