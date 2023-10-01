@@ -80,14 +80,17 @@ module Orthoses
           prefix = kind == :class ? 'self.' : ''
           attributes.each do |name, class_attributes|
             if class_attributes[:read] && class_attributes[:write]
+              next if class_attributes[:read].tags('return').empty?
               visibility = class_attributes[:read].visibility == :private ? 'private ' : ''
               type = tag_types_to_rbs_type(class_attributes[:read].tags('return').flat_map(&:types))
               block.call(yardoc.path, class_attributes[:read].docstring.all, "#{visibility}attr_accessor #{prefix}#{name}: #{type}")
             elsif class_attributes[:read]
+              next if class_attributes[:read].tags('return').empty?
               visibility = class_attributes[:read].visibility == :private ? 'private ' : ''
               type = tag_types_to_rbs_type(class_attributes[:read].tags('return').flat_map(&:types))
               block.call(yardoc.path, class_attributes[:read].docstring.all, "#{visibility}attr_reader #{prefix}#{name}: #{type}")
             elsif class_attributes[:write]
+              next if class_attributes[:write].tags('return').empty?
               visibility = class_attributes[:write].visibility == :private ? 'private ' : ''
               type = tag_types_to_rbs_type(class_attributes[:write].tags('return').flat_map(&:types))
               block.call(yardoc.path, class_attributes[:write].docstring.all, "#{visibility}attr_writer #{prefix}#{name}: #{type}")
@@ -106,11 +109,18 @@ module Orthoses
           # skip attribute methods because of generate_for_attributes
           next if meth.attr_info
 
-          # skip no tags methods
-          next if meth.tags.empty?
+          tags = meth.tags.select(&:types)
+
+          # skip no type tags methods
+          next if tags.empty?
 
           namespace = meth.namespace
           method_name = meth.name
+
+          if method_name == :initialize && meth.tags('param').empty? && meth.tags('option').empty? && meth.tag('return').types == [yardoc.name.to_s]
+            # skip default constructor type
+            next
+          end
 
           begin
             mod = Object.const_get(namespace.to_s)
@@ -234,7 +244,8 @@ module Orthoses
       def generate_for_constants
         yardoc.constants(inherited: false).each do |const|
           return_tags = const.tags('return')
-          return_type = return_tags.empty? ? untyped : tag_types_to_rbs_type(return_tags.flat_map(&:types))
+          next if return_tags.empty?
+          return_type = tag_types_to_rbs_type(return_tags.flat_map(&:types))
           block.call(const.namespace.to_s, const.docstring.all, "#{const.name}: #{return_type}")
         end
       end
@@ -243,7 +254,8 @@ module Orthoses
       def generate_for_classvariable
         yardoc.cvars.each do |cvar|
           return_tags = cvar.tags('return')
-          return_type = return_tags.empty? ? untyped : tag_types_to_rbs_type(return_tags.flat_map(&:types))
+          next if return_tags.empty?
+          return_type = tag_types_to_rbs_type(return_tags.flat_map(&:types))
           block.call(cvar.namespace.to_s, cvar.docstring.all, "#{cvar.name}: #{return_type}")
         end
       end
