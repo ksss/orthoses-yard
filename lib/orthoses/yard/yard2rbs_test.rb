@@ -108,7 +108,7 @@ module YARD2RBSTest
       t.error("expect `#{expect}`, but got `#{actual}`")
     end
 
-    expect = "def collection_type: (List[String] a, Array[String] b) -> untyped"
+    expect = "def collection_type: (List[String] a, Array[String] b) -> Hash[untyped, untyped]"
     actual = res[4].last
     unless expect == actual
       t.error("expect `#{expect}`, but got `#{actual}`")
