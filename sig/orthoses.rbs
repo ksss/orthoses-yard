@@ -9,7 +9,6 @@ class Orthoses::YARD
   def initialize: (untyped loader, parse: Array[String] | String, ?use_cache: bool, ?log_level: Symbol?) -> void
   # @return [void]
   def call: () -> void
-  VERSION: untyped
 end
 
 class Orthoses::YARD::YARD2RBS
@@ -23,7 +22,6 @@ class Orthoses::YARD::YARD2RBS
   attr_reader void: RBS::Types::Bases::Void
   # @return [RBS::Types::Bases::Bool]
   attr_reader bool: RBS::Types::Bases::Bool
-  def initialize: (yardoc: untyped, block: untyped) -> void
   # @return [void]
   def run: () -> void
   # @return [RBS::Types::t]

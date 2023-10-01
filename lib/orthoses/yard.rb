@@ -37,12 +37,12 @@ module Orthoses
           case yardoc.type
           when :class, :module
             YARD2RBS.run(yardoc: yardoc) do |namespace, docstring, rbs|
-              comment = docstring.each_line.map { |line| "# #{line}" }.join
+              comment = docstring.empty? ? '' : "# #{docstring.gsub("\n", "\n# ")}"
               if rbs.nil? && comment && !store.has_key?(namespace)
                 store[namespace].comment = comment
               else
                 Orthoses.logger.debug("#{namespace} << #{rbs}")
-                store[namespace] << "#{comment}\n#{rbs}"
+                store[namespace] << "#{comment.chomp}\n#{rbs}"
               end
             end
           end
