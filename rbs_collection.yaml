@@ -10,8 +10,6 @@ path: .gem_rbs_collection
 
 gems:
   - name: orthoses
-  - name: yard
-    ignore: true
   - name: rgot
     ignore: true
   - name: orthoses-yard
