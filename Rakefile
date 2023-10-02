@@ -28,4 +28,8 @@ task :sig do
   end.call
 end
 
-task default: [:test, :sig]
+task :validate do
+  sh "rbs -I sig validate --silent"
+end
+
+task default: [:test, :sig, :validate]
