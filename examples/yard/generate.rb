@@ -31,7 +31,8 @@ Orthoses::Builder.new do
     parse: [
       "#{gem_path}/**/*.rb",
     ],
-    log_level: :warn
+    log_level: :warn,
+    allow_empty_doc: true
   use Orthoses::Autoload
   run -> {
     require 'yard'
