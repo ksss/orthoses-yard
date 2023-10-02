@@ -131,6 +131,9 @@ module YARD2RBSTest
 
     def no_doc_method(a, b = nil, c:, d: nil)
     end
+
+    def initialize
+    end
   end
 
   def test_method(t)
@@ -173,6 +176,12 @@ module YARD2RBSTest
           "YARD2RBSTest::Methods",
           "",
           "def no_doc_method: (untyped a, ?untyped b, c: untyped, ?d: untyped) -> untyped",
+          true
+        ],
+        [
+          "YARD2RBSTest::Methods",
+          "",
+          "def initialize: () -> void",
           true
         ]
       ]
