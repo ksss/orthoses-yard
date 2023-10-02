@@ -17,23 +17,11 @@ Orthoses::Builder.new do
     rmtree: true
   use Orthoses::Filter do |name, content|
     name.start_with?('YARD') ||
-      name.start_with?('Ripper') ||
-      name.start_with?('OpenStruct') ||
-      name.start_with?('SymbolHash') ||
-      name.start_with?('Rake') ||
-      name.start_with?('WEBrick') ||
-      name.start_with?('RDoc')
+      name.start_with?('SymbolHash')
   end
+  use Orthoses::LoadRBS,
+    paths: Dir.glob("known_sig/**/*.rbs")
   use Orthoses::Tap do |store|
-    store['YARD'].header = 'module YARD'
-    store['YARD::CodeObjects'].header = 'module YARD::CodeObjects'
-    store['YARD::Handlers'].header = 'module YARD::Handlers'
-    store['YARD::Handlers::C'].header = 'module YARD::Handlers::C'
-    store['YARD::Handlers::Common'].header = 'module YARD::Handlers::Common'
-    store['YARD::Handlers::Ruby'].header = 'module YARD::Handlers::Ruby'
-    # TODO: support generics
-    store['YARD::Tags::Library'] << 'def self.labels: () -> SymbolHash'
-
     # FIXME: YARD's issue?
     store['YARD::CLI::YardocOptions'].delete("# @return [Numeric] An index value for rendering sequentially related templates\nattr_accessor index: Numeric")
   end
