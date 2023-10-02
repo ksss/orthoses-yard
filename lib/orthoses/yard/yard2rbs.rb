@@ -114,14 +114,10 @@ module Orthoses
           next if meth.attr_info
 
           # skip no type tags methods
-          skippable = meth.tags.select(&:types).empty?
+          skippable = meth.docstring.all.empty?
 
           namespace = meth.namespace
           method_name = meth.name
-
-          if meth.docstring.all.empty?
-            skippable = true
-          end
 
           begin
             mod = Object.const_get(namespace.to_s)
