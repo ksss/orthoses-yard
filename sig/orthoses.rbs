@@ -6,7 +6,8 @@ class Orthoses::YARD
   # @param [<String>, String] parse Target files
   # @param [Boolean] use_cache Use cache .yardoc
   # @param [Symbol, nil] log_level Set YARD log level
-  def initialize: (untyped loader, parse: Array[String] | String, ?use_cache: bool, ?log_level: Symbol?) -> void
+  # @param [Boolean] allow_empty_doc Generate RBS also from empty doc
+  def initialize: (untyped loader, parse: Array[String] | String, ?use_cache: bool, ?log_level: Symbol?, ?allow_empty_doc: bool) -> void
   # @return [void]
   def call: () -> void
 end

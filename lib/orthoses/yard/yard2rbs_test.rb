@@ -48,21 +48,38 @@ module YARD2RBSTest
     end
   end
 
+  def run_test(t, const_name, expects)
+    yardoc = ::YARD::Registry.at(const_name)
+    res = []
+    Orthoses::YARD::YARD2RBS.run(yardoc: yardoc) do |namespace, docstring, rbs, skippable|
+      res << [namespace, docstring, rbs, skippable]
+    end
+
+    unless expects.length == res.length
+      t.error("expect #{expects.length} results, But got #{res.length}")
+    end
+
+    expects.zip(res).each do |expect, actual|
+      unless expect == actual
+        t.error("expect `#{expect}`, but got `#{actual}`")
+      end
+    end
+  end
+
   class NoTagsInitialize
     def initialize(a)
     end
   end
 
   def test_not_tags_initialize(t)
-    yardoc = ::YARD::Registry.at('YARD2RBSTest::NoTagsInitialize')
-    res = []
-    Orthoses::YARD::YARD2RBS.run(yardoc: yardoc) do |namespace, docstring, rbs|
-      res << [namespace, docstring, rbs] if rbs
-    end
-
-    unless res.empty?
-      t.error("No tags initailize should not generate RBS")
-    end
+    run_test(
+      t,
+      'YARD2RBSTest::NoTagsInitialize',
+      [
+        ["YARD2RBSTest::NoTagsInitialize", "", nil, false],
+        ["YARD2RBSTest::NoTagsInitialize", "", "def initialize: (untyped a) -> void", true]
+      ]
+    )
   end
 
   class WithParamInitialize
@@ -72,20 +89,14 @@ module YARD2RBSTest
   end
 
   def test_with_param_initialize(t)
-    yardoc = ::YARD::Registry.at('YARD2RBSTest::WithParamInitialize')
-    res = []
-    Orthoses::YARD::YARD2RBS.run(yardoc: yardoc) do |namespace, docstring, rbs|
-      res << [namespace, docstring, rbs] if rbs
-    end
-
-    expect = [[
-      "YARD2RBSTest::WithParamInitialize",
-      "@param [String] a",
-      "def initialize: (String a) -> void"
-    ]]
-    unless res == expect
-      t.error("expect #{expect}. But not")
-    end
+    run_test(
+      t,
+      'YARD2RBSTest::WithParamInitialize',
+      [
+        ["YARD2RBSTest::WithParamInitialize", "", nil, false],
+        ["YARD2RBSTest::WithParamInitialize", "@param [String] a", "def initialize: (String a) -> void", false]
+      ]
+    )
   end
 
   module Methods
@@ -118,66 +129,54 @@ module YARD2RBSTest
     def collection_type(a, b)
     end
 
-    def no_doc_method
+    def no_doc_method(a, b = nil, c:, d: nil)
     end
   end
 
   def test_method(t)
-    yardoc = ::YARD::Registry.at('YARD2RBSTest::Methods')
-    res = []
-    Orthoses::YARD::YARD2RBS.run(yardoc: yardoc) do |namespace, docstring, rbs|
-      res << [namespace, docstring, rbs] if rbs
-    end
-
-    expect = [
-      "YARD2RBSTest::Methods",
-      "@yieldparam [String] a\n@yieldreturn [String]",
-      "def foo: () { (String a) -> String } -> untyped"
-    ]
-    actual = res[0]
-    unless expect == actual
-      t.error("expect `#{expect}`, but got `#{actual}`")
-    end
-
-    expect = [
-      "YARD2RBSTest::Methods",
-      "@param [String] a\n@return [void]",
-      "def bar: (String a) -> void"
-    ]
-    actual = res[1]
-    unless expect == actual
-      t.error("expect `#{expect}`, but got `#{actual}`")
-    end
-
-    expect = [
-      "YARD2RBSTest::Methods",
-      "@param [String] a\n@yieldparam [String]\n@yieldreturn [String]\n@return [void]",
-      "def baz: (String a) { (String) -> String } -> void"
-    ]
-    actual = res[2]
-    unless expect == actual
-      t.error("expect `#{expect}`, but got `#{actual}`")
-    end
-
-    expect = [
-      "YARD2RBSTest::Methods",
-      "\n@yieldreturn [String]\n",
-      "def qux: () { () -> String } -> untyped"
-    ]
-    actual = res[3]
-    unless expect == actual
-      t.error("expect `#{expect}`, but got `#{actual}`")
-    end
-
-    expect = [
-      "YARD2RBSTest::Methods",
-      "@param [List<String>] a\n@param [Array<String>] b\n@return [Hash<String>]",
-      "def collection_type: (List[String] a, Array[String] b) -> Hash[untyped, untyped]"
-    ]
-    actual = res[4]
-    unless expect == actual
-      t.error("expect `#{expect}`, but got `#{actual}`")
-    end
+    run_test(
+      t,
+      'YARD2RBSTest::Methods',
+      [
+        ["YARD2RBSTest::Methods", "", nil, false],
+        [
+          "YARD2RBSTest::Methods",
+          "@yieldparam [String] a\n@yieldreturn [String]",
+          "def foo: () { (String a) -> String } -> untyped",
+          false
+        ],
+        [
+          "YARD2RBSTest::Methods",
+          "@param [String] a\n@return [void]",
+          "def bar: (String a) -> void",
+          false
+        ],
+        [
+          "YARD2RBSTest::Methods",
+          "@param [String] a\n@yieldparam [String]\n@yieldreturn [String]\n@return [void]",
+          "def baz: (String a) { (String) -> String } -> void",
+          false
+        ],
+        [
+          "YARD2RBSTest::Methods",
+          "\n@yieldreturn [String]\n",
+          "def qux: () { () -> String } -> untyped",
+          false
+        ],
+        [
+          "YARD2RBSTest::Methods",
+          "@param [List<String>] a\n@param [Array<String>] b\n@return [Hash<String>]",
+          "def collection_type: (List[String] a, Array[String] b) -> Hash[untyped, untyped]",
+          false
+        ],
+        [
+          "YARD2RBSTest::Methods",
+          "",
+          "def no_doc_method: (untyped a, ?untyped b, c: untyped, ?d: untyped) -> untyped",
+          true
+        ]
+      ]
+    )
   end
 
   module Attributes
@@ -202,30 +201,21 @@ module YARD2RBSTest
   def test_attribute(t)
     yardoc = ::YARD::Registry.at('YARD2RBSTest::Attributes')
     res = []
-    Orthoses::YARD::YARD2RBS.run(yardoc: yardoc) do |namespace, docstring, rbs|
-      res << [namespace, docstring, rbs] if rbs
+    Orthoses::YARD::YARD2RBS.run(yardoc: yardoc) do |namespace, docstring, rbs, skippable|
+      res << [namespace, docstring, rbs, skippable] if rbs
     end
 
-    unless res.length == 3
-      return t.error("unexpected singnatures")
-    end
-
-    expect = ["YARD2RBSTest::Attributes", "@return [Integer]", "attr_reader self.r: Integer"]
-    actual = res[0]
-    unless expect == actual
-      t.error("expect `#{expect}`, but got `#{actual}`")
-    end
-
-    expect = ["YARD2RBSTest::Attributes", "@return [Integer]", "private attr_writer self.w: Integer"]
-    actual = res[1]
-    unless expect == actual
-      t.error("expect `#{expect}`, but got `#{actual}`")
-    end
-
-    expect = ["YARD2RBSTest::Attributes", "@return [Integer]", "attr_accessor a: Integer"]
-    actual = res[2]
-    unless expect == actual
-      t.error("expect `#{expect}`, but got `#{actual}`")
+    [
+      ["YARD2RBSTest::Attributes", "@return [Integer]", "attr_reader self.r: Integer", false],
+      ["YARD2RBSTest::Attributes", "@return [Integer]", "private attr_writer self.w: Integer", false],
+      ["YARD2RBSTest::Attributes", "@return [Integer]", "attr_accessor a: Integer", false],
+      ["YARD2RBSTest::Attributes", "Returns the value of attribute no_return_reader.", "attr_reader no_return_reader: untyped", true],
+      ["YARD2RBSTest::Attributes", "Sets the attribute no_return_writer\n" + "@param value the value to set the attribute no_return_writer to.", "attr_writer no_return_writer: untyped", true],
+      ["YARD2RBSTest::Attributes", "Returns the value of attribute no_return_accessor.", "attr_accessor no_return_accessor: untyped", true]
+    ].zip(res).each do |expect, actual|
+      unless expect == actual
+        t.error("expect `#{expect}`, but got `#{actual}`")
+      end
     end
   end
 
@@ -239,18 +229,18 @@ module YARD2RBSTest
   def test_const(t)
     yardoc = ::YARD::Registry.at('YARD2RBSTest::Const')
     res = []
-    Orthoses::YARD::YARD2RBS.run(yardoc: yardoc) do |namespace, docstring, rbs|
-      res << [namespace, docstring, rbs] if rbs
+    Orthoses::YARD::YARD2RBS.run(yardoc: yardoc) do |namespace, docstring, rbs, skippable|
+      res << [namespace, docstring, rbs, skippable]
     end
 
-    unless res.length == 1
-      return t.error("unexpected singnatures")
-    end
-
-    expect = ["YARD2RBSTest::Const", "@return [Integer]", "CONST: Integer"]
-    actual = res[0]
-    unless expect == actual
-      t.error("expect `#{expect}`, but got `#{actual}`")
+    [
+      ["YARD2RBSTest::Const", "", nil, false],
+      ["YARD2RBSTest::Const", "@return [Integer]", "CONST: Integer", false],
+      ["YARD2RBSTest::Const", "", "NO_RETURN: untyped", true]
+    ].zip(res).each do |expect, actual|
+      unless expect == actual
+        t.error("expect `#{expect}`, but got `#{actual}`")
+      end
     end
   end
 
@@ -262,21 +252,15 @@ module YARD2RBSTest
   end
 
   def test_classvariable(t)
-    yardoc = ::YARD::Registry.at('YARD2RBSTest::ClassVariable')
-    res = []
-    Orthoses::YARD::YARD2RBS.run(yardoc: yardoc) do |namespace, docstring, rbs|
-      res << [namespace, docstring, rbs] if rbs
-    end
-
-    unless res.length == 1
-      return t.error("unexpected singnatures")
-    end
-
-    expect = "@@classvariable: Integer"
-    actual = res[0].last
-    unless expect == actual
-      t.error("expect `#{expect}`, but got `#{actual}`")
-    end
+    run_test(
+      t,
+      'YARD2RBSTest::ClassVariable',
+      [
+        ["YARD2RBSTest::ClassVariable", "", nil, false],
+        ["YARD2RBSTest::ClassVariable", "@return [Integer]", "@@classvariable: Integer", false],
+        ["YARD2RBSTest::ClassVariable", "", "@@no_return: untyped", true]
+      ]
+    )
   end
 
   module Aliases
@@ -290,26 +274,21 @@ module YARD2RBSTest
   def test_aliases(t)
     yardoc = ::YARD::Registry.at('YARD2RBSTest::Aliases')
     res = []
-    Orthoses::YARD::YARD2RBS.run(yardoc: yardoc) do |namespace, docstring, rbs|
-      res << [namespace, docstring, rbs] if rbs
+    Orthoses::YARD::YARD2RBS.run(yardoc: yardoc) do |namespace, docstring, rbs, skippable|
+      res << [namespace, docstring, rbs, skippable]
     end
 
-    expect = "def foo: () -> Integer"
-    actual = res[0].last
-    unless expect == actual
-      t.error("expect `#{expect}`, but got `#{actual}`")
-    end
-
-    expect = "alias bar foo"
-    actual = res[1].last
-    unless expect == actual
-      t.error("expect `#{expect}`, but got `#{actual}`")
-    end
-
-    expect = "alias baz foo"
-    actual = res[2].last
-    unless expect == actual
-      t.error("expect `#{expect}`, but got `#{actual}`")
+    [
+      ["YARD2RBSTest::Aliases", "", nil, false],
+      ["YARD2RBSTest::Aliases", "@return [Integer]", "def foo: () -> Integer", false],
+      ["YARD2RBSTest::Aliases", "", "alias bar foo", false],
+      ["YARD2RBSTest::Aliases", "@return [Integer] \n", "def bar: () -> Integer", false],
+      ["YARD2RBSTest::Aliases", "", "alias baz foo", false],
+      ["YARD2RBSTest::Aliases", "@return [Integer] \n", "def baz: () -> Integer", false]
+    ].zip(res).each do |expect, actual|
+      unless expect == actual
+        t.error("expect `#{expect}`, but got `#{actual}`")
+      end
     end
   end
 
