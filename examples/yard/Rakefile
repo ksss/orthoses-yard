@@ -3,5 +3,5 @@ task :generate do
 end
 
 task :validate do
-  sh "rbs -r ripper -r cgi -r uri -r rack -I out validate --silent"
+  sh "rbs -r ripper -r cgi -r uri -I out validate --silent"
 end

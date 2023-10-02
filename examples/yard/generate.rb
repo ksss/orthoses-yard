@@ -22,6 +22,8 @@ Orthoses::Builder.new do
   use Orthoses::LoadRBS,
     paths: Dir.glob("known_sig/**/*.rbs")
   use Orthoses::Tap do |store|
+    # remove rack dependency
+    store['YARD::Server::Commands::Base'].delete("# @return [Rack::Request] request object\nattr_accessor request: Rack::Request")
     # FIXME: YARD's issue?
     store['YARD::CLI::YardocOptions'].delete("# @return [Numeric] An index value for rendering sequentially related templates\nattr_accessor index: Numeric")
   end
