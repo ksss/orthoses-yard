@@ -11,10 +11,6 @@ gems:
   version: '0'
   source:
     type: stdlib
-- name: base64
-  version: '0'
-  source:
-    type: stdlib
 - name: json
   version: '0'
   source:
@@ -39,14 +35,6 @@ gems:
   version: '0'
   source:
     type: stdlib
-- name: rainbow
-  version: '3.0'
-  source:
-    type: git
-    name: ruby/gem_rbs_collection
-    revision: c69c46f012a6a0263006eef0f84ca59ac0c5043e
-    remote: https://github.com/ruby/gem_rbs_collection.git
-    repo_dir: gems
 - name: rbs
   version: 3.2.2
   source:
@@ -55,10 +43,6 @@ gems:
   version: '0'
   source:
     type: stdlib
-- name: rubocop-yard
-  version: 0.4.0
-  source:
-    type: rubygems
 - name: tsort
   version: '0'
   source:

@@ -17,6 +17,8 @@ gems:
     ignore: true
   - name: orthoses-yard
     ignore: true
+  - name: rubocop-yard
+    ignore: true
   - name: steep
     ignore: true
   - name: activesupport
