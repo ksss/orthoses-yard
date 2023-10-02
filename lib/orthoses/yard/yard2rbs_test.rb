@@ -134,6 +134,9 @@ module YARD2RBSTest
 
     def initialize
     end
+
+    def bool_method?
+    end
   end
 
   def test_method(t)
@@ -182,6 +185,12 @@ module YARD2RBSTest
           "YARD2RBSTest::Methods",
           "",
           "def initialize: () -> void",
+          true
+        ],
+        [
+          "YARD2RBSTest::Methods",
+          "",
+          "def bool_method?: () -> bool",
           true
         ]
       ]

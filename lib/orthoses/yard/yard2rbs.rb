@@ -119,8 +119,7 @@ module Orthoses
           namespace = meth.namespace
           method_name = meth.name
 
-          if method_name == :initialize && meth.tags('param').empty? && meth.tags('option').empty? && meth.tag('return')&.types == [yardoc.name.to_s]
-            # skip default constructor type
+          if meth.docstring.all.empty?
             skippable = true
           end
 
