@@ -35,7 +35,7 @@ module Orthoses
       # @return [void]
       def run
         Orthoses.logger.info("YARD will generate about #{yardoc.inspect}")
-        block.call(yardoc.path, yardoc.docstring.all, nil)
+        emit(yardoc.path, yardoc.docstring.all, nil, false)
         yardoc.children.each do |child|
           case child.type
           when :module, :class
@@ -70,6 +70,10 @@ module Orthoses
 
       private
 
+      def emit(namespace, docstring, rbs, skippable)
+        block.call(namespace, docstring, rbs, skippable)
+      end
+
       def class_of(mod)
         Kernel.instance_method(:class).bind_call(mod)
       end
@@ -80,20 +84,20 @@ module Orthoses
           prefix = kind == :class ? 'self.' : ''
           attributes.each do |name, class_attributes|
             if class_attributes[:read] && class_attributes[:write]
-              next if class_attributes[:read].tags('return').empty?
               visibility = class_attributes[:read].visibility == :private ? 'private ' : ''
               type = tag_types_to_rbs_type(class_attributes[:read].tags('return').flat_map(&:types))
-              block.call(yardoc.path, class_attributes[:read].docstring.all, "#{visibility}attr_accessor #{prefix}#{name}: #{type}")
+              skippable = class_attributes[:read].tags('return').empty?
+              emit(yardoc.path, class_attributes[:read].docstring.all, "#{visibility}attr_accessor #{prefix}#{name}: #{type}", skippable)
             elsif class_attributes[:read]
-              next if class_attributes[:read].tags('return').empty?
               visibility = class_attributes[:read].visibility == :private ? 'private ' : ''
               type = tag_types_to_rbs_type(class_attributes[:read].tags('return').flat_map(&:types))
-              block.call(yardoc.path, class_attributes[:read].docstring.all, "#{visibility}attr_reader #{prefix}#{name}: #{type}")
+              skippable = class_attributes[:read].tags('return').empty?
+              emit(yardoc.path, class_attributes[:read].docstring.all, "#{visibility}attr_reader #{prefix}#{name}: #{type}", skippable)
             elsif class_attributes[:write]
-              next if class_attributes[:write].tags('return').empty?
               visibility = class_attributes[:write].visibility == :private ? 'private ' : ''
               type = tag_types_to_rbs_type(class_attributes[:write].tags('return').flat_map(&:types))
-              block.call(yardoc.path, class_attributes[:write].docstring.all, "#{visibility}attr_writer #{prefix}#{name}: #{type}")
+              skippable = class_attributes[:write].tags('return').empty?
+              emit(yardoc.path, class_attributes[:write].docstring.all, "#{visibility}attr_writer #{prefix}#{name}: #{type}", skippable)
             else
               raise "bug"
             end
@@ -109,17 +113,15 @@ module Orthoses
           # skip attribute methods because of generate_for_attributes
           next if meth.attr_info
 
-          tags = meth.tags.select(&:types)
-
           # skip no type tags methods
-          next if tags.empty?
+          skippable = meth.tags.select(&:types).empty?
 
           namespace = meth.namespace
           method_name = meth.name
 
           if method_name == :initialize && meth.tags('param').empty? && meth.tags('option').empty? && meth.tag('return').types == [yardoc.name.to_s]
             # skip default constructor type
-            next
+            skippable = true
           end
 
           begin
@@ -141,8 +143,7 @@ module Orthoses
 
           if meth.is_alias?
             orig_key = yardoc.aliases[meth]
-            block.call(yardoc.to_s, "", "alias #{prefix}#{meth.name} #{prefix}#{orig_key}")
-            next
+            emit(yardoc.to_s, "", "alias #{prefix}#{meth.name} #{prefix}#{orig_key}", false)
           end
 
           required_positionals = []
@@ -236,7 +237,7 @@ module Orthoses
           )
 
           visibility = meth.visibility == :private ? 'private ' : ''
-          block.call(yardoc.to_s, meth.docstring.all, "#{visibility}def #{prefix}#{method_name}: #{method_type}")
+          emit(yardoc.to_s, meth.docstring.all, "#{visibility}def #{prefix}#{method_name}: #{method_type}", skippable)
         end
       end
 
@@ -244,9 +245,9 @@ module Orthoses
       def generate_for_constants
         yardoc.constants(inherited: false).each do |const|
           return_tags = const.tags('return')
-          next if return_tags.empty?
           return_type = tag_types_to_rbs_type(return_tags.flat_map(&:types))
-          block.call(const.namespace.to_s, const.docstring.all, "#{const.name}: #{return_type}")
+          skippable = return_tags.empty?
+          emit(const.namespace.to_s, const.docstring.all, "#{const.name}: #{return_type}", skippable)
         end
       end
 
@@ -254,9 +255,9 @@ module Orthoses
       def generate_for_classvariable
         yardoc.cvars.each do |cvar|
           return_tags = cvar.tags('return')
-          next if return_tags.empty?
           return_type = tag_types_to_rbs_type(return_tags.flat_map(&:types))
-          block.call(cvar.namespace.to_s, cvar.docstring.all, "#{cvar.name}: #{return_type}")
+          skippable = return_tags.empty?
+          emit(cvar.namespace.to_s, cvar.docstring.all, "#{cvar.name}: #{return_type}", skippable)
         end
       end
 
